@@ -11,13 +11,23 @@ import net.neoforged.fml.loading.FMLPaths
 import java.nio.file.Files
 import java.nio.file.Path
 
+enum class PaletteSize(val serializedName: String) {
+    SMALL("small"),
+    BIG("big");
+
+    companion object {
+        fun fromSerializedName(value: String?): PaletteSize = entries.firstOrNull { it.serializedName == value } ?: SMALL
+    }
+}
+
 data class PaletteEntry(
     var name: String? = null,
     var iconItem: String? = null,
 )
 
 data class PaletteData(
-    var schemaVersion: Int = 1,
+    var schemaVersion: Int = 2,
+    var paletteSize: String = PaletteSize.SMALL.serializedName,
     var pinned: MutableList<String> = mutableListOf(
         "gisketchs_command_palette:open_palette",
         "gisketchs_command_palette:edit_palette",
@@ -109,6 +119,13 @@ object PaletteStore {
         data.recent.remove(action.id.toString())
         data.recent.add(0, action.id.toString())
         while (data.recent.size > 20) data.recent.removeLast()
+        save()
+    }
+
+    fun paletteSize(): PaletteSize = PaletteSize.fromSerializedName(data.paletteSize)
+
+    fun setPaletteSize(size: PaletteSize) {
+        data.paletteSize = size.serializedName
         save()
     }
 

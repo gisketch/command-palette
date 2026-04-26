@@ -3,6 +3,7 @@ package dev.gisketch.commandpalette.ui
 import dev.gisketch.commandpalette.action.PaletteAction
 import dev.gisketch.commandpalette.action.PaletteActionRegistry
 import dev.gisketch.commandpalette.action.PaletteSearch
+import dev.gisketch.commandpalette.config.PaletteSize
 import dev.gisketch.commandpalette.config.PaletteStore
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
@@ -185,7 +186,16 @@ class PaletteEditorScreen : BaseOwoScreen<FlowLayout>(Component.translatable("sc
             selectedList.child(row)
             if (index == selectedIndex && selectedColumn == 1) selectedScroll.scrollTo(row)
         }
+        globalDetails(detailsList)
         selectedAction()?.let { detailsFor(it, detailsList) } ?: detailsList.child(Components.label(Component.translatable("ui.gisketchs_command_palette.no_selection")))
+    }
+
+    private fun globalDetails(target: FlowLayout) {
+        target.child(detailRow(Component.translatable("ui.gisketchs_command_palette.palette_size"), paletteSizeLabel(), true) {
+            val nextSize = if (PaletteStore.paletteSize() == PaletteSize.SMALL) PaletteSize.BIG else PaletteSize.SMALL
+            PaletteStore.setPaletteSize(nextSize)
+            rebuildLists()
+        })
     }
 
     private fun actionRow(action: PaletteAction, canAdd: Boolean, selected: Boolean): FlowLayout {
@@ -354,6 +364,11 @@ class PaletteEditorScreen : BaseOwoScreen<FlowLayout>(Component.translatable("sc
     }
 
     private fun iconLabel(action: PaletteAction): Component = PaletteStore.actionEntry(action).iconItem?.let(Component::literal) ?: Component.translatable("ui.gisketchs_command_palette.default_icon")
+
+    private fun paletteSizeLabel(): Component = when (PaletteStore.paletteSize()) {
+        PaletteSize.SMALL -> Component.translatable("ui.gisketchs_command_palette.palette_size_small")
+        PaletteSize.BIG -> Component.translatable("ui.gisketchs_command_palette.palette_size_big")
+    }
 
     private fun searchItems(search: String): List<Item> {
         val normalized = search.trim().lowercase()

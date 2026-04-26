@@ -4,6 +4,7 @@ import dev.gisketch.commandpalette.action.PaletteAction
 import dev.gisketch.commandpalette.action.PaletteActionRegistry
 import dev.gisketch.commandpalette.action.PaletteExecutionContext
 import dev.gisketch.commandpalette.action.PaletteSearch
+import dev.gisketch.commandpalette.config.PaletteSize
 import dev.gisketch.commandpalette.config.PaletteStore
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
@@ -25,6 +26,8 @@ import net.minecraft.world.item.Items
 import org.lwjgl.glfw.GLFW
 
 class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("screen.gisketchs_command_palette.palette")) {
+    private data class PaletteLayout(val widthPercent: Int, val heightPercent: Int, val labelWidth: Int, val maxResults: Int)
+
     private lateinit var list: FlowLayout
     private lateinit var queryLabel: io.wispforest.owo.ui.component.LabelComponent
     private var query = ""
@@ -36,13 +39,14 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
     override fun build(rootComponent: FlowLayout) {
         PaletteActionRegistry.refresh()
         PaletteStore.load()
+        val layout = paletteLayout(PaletteStore.paletteSize())
 
         rootComponent
             .surface(Surface.VANILLA_TRANSLUCENT)
             .alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
 
         list = Containers.verticalFlow(Sizing.fill(100), Sizing.content()).gap(4)
-        queryLabel = Components.label(searchComponent()).maxWidth(520)
+        queryLabel = Components.label(searchComponent()).maxWidth(layout.labelWidth)
 
         val searchBar = Containers.horizontalFlow(Sizing.fill(100), Sizing.fixed(24))
         searchBar.surface(Surface.PANEL_INSET)
@@ -50,7 +54,7 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
         searchBar.verticalAlignment(VerticalAlignment.CENTER)
         searchBar.child(queryLabel)
 
-        val panel = Containers.verticalFlow(Sizing.fill(82), Sizing.fill(72))
+        val panel = Containers.verticalFlow(Sizing.fill(layout.widthPercent), Sizing.fill(layout.heightPercent))
         panel.surface(Surface.DARK_PANEL)
         panel.padding(Insets.of(10))
         panel.gap(8)
@@ -106,9 +110,10 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
 
     private fun populate() {
         queryLabel.text(searchComponent())
+        val layout = paletteLayout(PaletteStore.paletteSize())
         displayedActions = PaletteStore.pinned(PaletteActionRegistry.all())
             .filter { it.matches(query) }
-            .take(14)
+            .take(layout.maxResults)
         list.clearChildren()
         displayedActions.forEachIndexed { index, action -> list.child(actionRow(action, index == selectedIndex)) }
     }
@@ -120,7 +125,7 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
         row.gap(6)
         row.verticalAlignment(VerticalAlignment.CENTER)
         row.child(iconFor(action))
-        row.child(Components.label(highlight(PaletteStore.displayName(action))).maxWidth(540).shadow(true))
+        row.child(Components.label(highlight(PaletteStore.displayName(action))).maxWidth(paletteLayout(PaletteStore.paletteSize()).labelWidth + 20).shadow(true))
         row.mouseDown().subscribe(MouseDown { _, _, button ->
             if (button == 0) {
                 runAction(action)
@@ -169,6 +174,11 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
         Component.translatable("ui.gisketchs_command_palette.search_empty")
     } else {
         Component.literal("> $query")
+    }
+
+    private fun paletteLayout(size: PaletteSize): PaletteLayout = when (size) {
+        PaletteSize.SMALL -> PaletteLayout(widthPercent = 58, heightPercent = 42, labelWidth = 340, maxResults = 8)
+        PaletteSize.BIG -> PaletteLayout(widthPercent = 82, heightPercent = 72, labelWidth = 520, maxResults = 14)
     }
 
     private fun Int.floorMod(size: Int): Int = ((this % size) + size) % size

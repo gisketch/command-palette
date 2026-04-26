@@ -10,8 +10,8 @@ object PaletteSearch {
         val tokens = query.trim().split(Regex("\\s+")).filter(String::isNotBlank)
         if (tokens.isEmpty()) return emptyList()
 
-        val exactRanges = tokens.flatMap { token -> exactMatchRanges(text, token) }
-        if (exactRanges.isNotEmpty()) return mergeRanges(exactRanges)
+        val exactRangesByToken = tokens.map { token -> exactMatchRanges(text, token) }
+        if (exactRangesByToken.all(List<IntRange>::isNotEmpty)) return mergeRanges(exactRangesByToken.flatten())
 
         val initialsRanges = initialsMatchRanges(query, text)
         if (initialsRanges.isNotEmpty()) return initialsRanges
