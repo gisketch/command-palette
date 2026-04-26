@@ -41,13 +41,13 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
             .alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
 
         list = Containers.verticalFlow(Sizing.fill(100), Sizing.content()).gap(4)
-    queryLabel = Components.label(searchComponent()).maxWidth(520)
+        queryLabel = Components.label(searchComponent()).maxWidth(520)
 
-    val searchBar = Containers.horizontalFlow(Sizing.fill(100), Sizing.fixed(24))
-    searchBar.surface(Surface.PANEL_INSET)
-    searchBar.padding(Insets.of(5))
-    searchBar.verticalAlignment(VerticalAlignment.CENTER)
-    searchBar.child(queryLabel)
+        val searchBar = Containers.horizontalFlow(Sizing.fill(100), Sizing.fixed(24))
+        searchBar.surface(Surface.PANEL_INSET)
+        searchBar.padding(Insets.of(5))
+        searchBar.verticalAlignment(VerticalAlignment.CENTER)
+        searchBar.child(queryLabel)
 
         val panel = Containers.verticalFlow(Sizing.fill(82), Sizing.fill(72))
         panel.surface(Surface.DARK_PANEL)
@@ -58,7 +58,6 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
         panel.child(Components.label(Component.translatable("screen.gisketchs_command_palette.palette")).shadow(true))
         panel.child(searchBar)
         panel.child(Containers.verticalScroll(Sizing.fill(100), Sizing.expand(), list))
-        panel.child(Components.label(Component.translatable("ui.gisketchs_command_palette.palette_hint")).maxWidth(520))
         rootComponent.child(panel)
 
         populate()
@@ -106,7 +105,7 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
 
     private fun populate() {
         queryLabel.text(searchComponent())
-        displayedActions = PaletteStore.visible(PaletteActionRegistry.all())
+        displayedActions = PaletteStore.pinned(PaletteActionRegistry.all())
             .filter { it.matches(query) }
             .take(14)
         list.clearChildren()
@@ -120,7 +119,7 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
         row.gap(6)
         row.verticalAlignment(VerticalAlignment.CENTER)
         row.child(iconFor(action))
-        row.child(Components.label(highlight(action.title.string)).maxWidth(540).shadow(true))
+        row.child(Components.label(highlight(PaletteStore.displayName(action))).maxWidth(540).shadow(true))
         row.mouseDown().subscribe(MouseDown { _, _, button ->
             if (button == 0) {
                 runAction(action)
@@ -140,6 +139,7 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
     }
 
     private fun iconFor(action: PaletteAction): OwoComponent {
+        PaletteStore.iconStack(action)?.let { return Components.item(it).showOverlay(false) }
         val modIcon = ModIconCache.iconFor(action.sourceModId)
         return if (modIcon != null) {
             Components.texture(modIcon.texture, 0, 0, modIcon.width, modIcon.height, modIcon.width, modIcon.height)

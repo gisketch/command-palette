@@ -5,11 +5,19 @@
   "screen.gisketchs_command_palette.palette": "Command Palette",
   "screen.gisketchs_command_palette.edit_palette": "Edit Command Palette",
   "ui.gisketchs_command_palette.add": "Add",
+  "ui.gisketchs_command_palette.action_id": "Action",
   "ui.gisketchs_command_palette.available": "Available Actions",
-  "ui.gisketchs_command_palette.palette_hint": "Type to filter. Up/down selects, Enter runs. Use Controls to change Ctrl+K.",
+  "ui.gisketchs_command_palette.available_icons": "Available Icons",
+  "ui.gisketchs_command_palette.default_icon": "Default icon",
+  "ui.gisketchs_command_palette.details": "Details",
+  "ui.gisketchs_command_palette.icon": "Icon",
+  "ui.gisketchs_command_palette.name": "Name",
+  "ui.gisketchs_command_palette.no_selection": "No action selected",
   "ui.gisketchs_command_palette.remove": "Remove",
   "ui.gisketchs_command_palette.run": "Run",
   "ui.gisketchs_command_palette.search_empty": "> Search actions, keybinds, screens...",
+  "ui.gisketchs_command_palette.search_icons": "icon > Search item icons...",
   "ui.gisketchs_command_palette.search_hint": "Search actions, keybinds, screens...",
-  "ui.gisketchs_command_palette.selected": "Palette"
+  "ui.gisketchs_command_palette.selected": "Palette",
+  "ui.gisketchs_command_palette.source": "Source"
 }
