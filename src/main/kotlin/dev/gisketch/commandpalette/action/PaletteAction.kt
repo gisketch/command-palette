@@ -27,19 +27,7 @@ data class PaletteAction(
     val contexts: Set<PaletteContext> = setOf(PaletteContext.CLIENT),
 ) {
     fun matches(query: String): Boolean {
-        if (query.isBlank()) return true
         val haystacks = listOf(id.toString(), title.string, description.string, category.toString(), sourceModId) + tags
-        val normalized = query.lowercase().trim()
-        return haystacks.any { it.lowercase().contains(normalized) } || haystacks.any { fuzzyMatch(normalized, it.lowercase()) }
-    }
-
-    private fun fuzzyMatch(needle: String, haystack: String): Boolean {
-        if (needle.isEmpty()) return true
-        var index = 0
-        for (char in haystack) {
-            if (char == needle[index]) index++
-            if (index == needle.length) return true
-        }
-        return false
+        return PaletteSearch.matches(query, haystacks)
     }
 }

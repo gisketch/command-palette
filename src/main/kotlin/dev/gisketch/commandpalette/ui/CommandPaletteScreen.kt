@@ -3,6 +3,7 @@ package dev.gisketch.commandpalette.ui
 import dev.gisketch.commandpalette.action.PaletteAction
 import dev.gisketch.commandpalette.action.PaletteActionRegistry
 import dev.gisketch.commandpalette.action.PaletteExecutionContext
+import dev.gisketch.commandpalette.action.PaletteSearch
 import dev.gisketch.commandpalette.config.PaletteStore
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
@@ -150,17 +151,7 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
     }
 
     private fun highlight(text: String): Component {
-        val ranges = query.trim().split(Regex("\\s+")).filter(String::isNotBlank).flatMap { token ->
-            exactMatchRanges(text, token)
-        }.sortedBy { it.first }.fold(mutableListOf<IntRange>()) { merged, range ->
-            val last = merged.lastOrNull()
-            if (last == null || range.first > last.last + 1) {
-                merged.add(range)
-            } else {
-                merged[merged.lastIndex] = last.first..maxOf(last.last, range.last)
-            }
-            merged
-        }
+        val ranges = PaletteSearch.matchRanges(query, text)
         if (ranges.isEmpty()) return Component.literal(text)
 
         val result: MutableComponent = Component.empty()
@@ -172,18 +163,6 @@ class CommandPaletteScreen : BaseOwoScreen<FlowLayout>(Component.translatable("s
         }
         if (cursor < text.length) result.append(Component.literal(text.substring(cursor)))
         return result
-    }
-
-    private fun exactMatchRanges(text: String, token: String): List<IntRange> {
-        val ranges = mutableListOf<IntRange>()
-        val lowerText = text.lowercase()
-        val lowerToken = token.lowercase()
-        var startIndex = lowerText.indexOf(lowerToken)
-        while (startIndex >= 0) {
-            ranges.add(startIndex until startIndex + token.length)
-            startIndex = lowerText.indexOf(lowerToken, startIndex + token.length)
-        }
-        return ranges
     }
 
     private fun searchComponent(): Component = if (query.isBlank()) {
