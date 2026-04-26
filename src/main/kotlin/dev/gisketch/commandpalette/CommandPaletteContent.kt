@@ -1,4 +1,4 @@
-package com.example.startersdk
+package dev.gisketch.commandpalette
 
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.item.CreativeModeTabs
@@ -8,8 +8,8 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent
 import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredRegister
 
-object StarterSdkContent {
-    private val ITEMS: DeferredRegister<Item> = DeferredRegister.create(BuiltInRegistries.ITEM, StarterSdk.MOD_ID)
+object CommandPaletteContent {
+    private val ITEMS: DeferredRegister<Item> = DeferredRegister.create(BuiltInRegistries.ITEM, CommandPaletteMod.MOD_ID)
 
     val EXAMPLE_ITEM: DeferredHolder<Item, Item> = ITEMS.register("example_item") { -> Item(Item.Properties()) }
 
